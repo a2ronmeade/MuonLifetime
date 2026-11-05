@@ -5,8 +5,8 @@ data = np.loadtxt("time_calibration")
 voltage = data[:, 0]
 counts = data[:, 1]
 
-T_ns = 1.25  # period (nanoseconds?) (check this?)
-T_uncertainty_ns = 0.0  # given instrument uncertainty?
+T = 0.32  # period in microseconds (we need to check this)
+T_uncertainty = T * 0.00005  # given instrument uncertainty?
 bin_width = 0.05
 
 # assign locations of the peaks (from visual inspection)
@@ -44,15 +44,15 @@ sigma_X = np.sqrt((variance + bin_width**2 / 12) / N_total)
 
 
 # calibration constant and uncertainty
-C = T_ns / X_mean
-sigma_C = C * np.sqrt((T_uncertainty_ns / T_ns)**2 + (sigma_X / X_mean)**2)
+C = T / X_mean
+sigma_C = C * np.sqrt((T_uncertainty / T)**2 + (sigma_X / X_mean)**2)
 
 print(f"Total counts: {N_total:.0f}")
 print(f"Voltage per period: {X_mean:.6f} +/- {sigma_X:.6f} V")
-print(f"Period T: {T_ns:.4f} ns")
-print(f"Calibration constant: {C:.6f} +/- {sigma_C:.6f} ns/V")
+print(f"Period T: {T:.4f} us")
+print(f"Calibration constant: {C:.6f} +/- {sigma_C:.6f} us/V")
 
-print(f"\nTime = Voltage * ({C:.6f} ns/V)")
+print(f"\nTime = Voltage * ({C:.6f} us/V)")
 
 
 # histogram plot
