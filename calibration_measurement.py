@@ -65,9 +65,9 @@ plt.bar(
     linewidth=0.3
 )
 
-plt.xlabel("Voltage (V)")
-plt.ylabel("Counts")
-plt.title("Time Calibration")
+plt.xlabel("Voltage (V)", size = 14)
+plt.ylabel("Counts", size = 14)
+plt.title("Count v. Voltage from the Time Calibration Device", size = 18)
 plt.grid(axis="y", alpha=0.3)
 
 plt.tight_layout()
