@@ -6,13 +6,14 @@ from scipy.optimize import curve_fit
 filename = "muon_run_1"
 
 # voltage * C = time
-C = 0.489384            # us/V
+C = 0.978767            # calibation constant for if our period is actually 0.64 microseconds (needs to be checked)
+#C = 0.489384           # us/V
 sigma_C = 0.000035      # us/V
 
 bin_width = 0.05        # voltage bin width (V)
 
 data = np.loadtxt(filename)
-data = data[1:] # ignore first few columns
+data = data[2:] # ignore first few columns
 voltage = data[:, 0]
 counts = data[:, 1]
 
