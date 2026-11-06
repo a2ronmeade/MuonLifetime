@@ -28,34 +28,37 @@ sigma_time_bin = C * sigma_V
 sigma_time_cal = sigma_C * np.abs(voltage) # Convert calibration uncertainty to time uncertainty
 
 # Exponential decay model
-def exponential_decay(t, N0, tau):
-    return N0 * np.exp(-t / tau)
+def exponential_decay(t, N0, tau, B):
+    return N0 * np.exp(-t / tau) + B
 
 N0_guess = np.max(counts)
 tau_guess = (np.max(time) - np.min(time)) / 3
+B_guess = np.min(counts)
 
 # Weighted exponential fit using Poisson uncertainties
 popt, pcov = curve_fit(
     exponential_decay,
     time,
     counts,
-    p0=[N0_guess, tau_guess],
+    p0=[N0_guess, tau_guess, B_guess],
     sigma=sigma_counts,
     absolute_sigma=True,
-    bounds=([0, 0], [np.inf, np.inf]),
+    bounds=([0, 0, 0], [np.inf, np.inf, np.inf]),
     maxfev=10000
 )
-N0, tau = popt
+N0, tau, B = popt
 
-sigma_N0_fit, sigma_tau_fit = np.sqrt(np.diag(pcov))                                # statistical fit uncertainty
+sigma_N0_fit, sigma_tau_fit, sigma_B_fit = np.sqrt(np.diag(pcov))                                # statistical fit uncertainty
 sigma_tau_bin = tau * (sigma_V / np.mean(np.abs(voltage)))                          # binning uncertainty
 sigma_tau_cal = tau * sigma_C / C                                                   # scale uncertainty proportionally
 sigma_tau_total = np.sqrt(sigma_tau_fit**2 + sigma_tau_bin**2 + sigma_tau_cal**2)   # add in quad 
 
 sigma_N0_total = sigma_N0_fit
+sigma_B_total = sigma_B_fit
 
 print(f"N0  = {N0:.3f} +/- {sigma_N0_total:.3f} counts")
 print(f"tau = {tau:.5f} +/- {sigma_tau_total:.5f} us")
+print(f"B = {B:.3f} +/- {sigma_B_total:.3f} counts")
 
 print("\n--- Uncertainty breakdown ---")
 print(f"N0 fit uncertainty:          {sigma_N0_fit:.5f}")
@@ -66,7 +69,7 @@ print(f"Time bin uncertainty:        {sigma_time_bin:.5f} us")
 
 # generate fit curve
 time_fit = np.linspace(np.min(time), np.max(time), 1000)
-counts_fit = exponential_decay(time_fit, N0, tau)
+counts_fit = exponential_decay(time_fit, N0, tau, B)
 
 # Plot
 plt.figure(figsize=(12, 6))
@@ -97,18 +100,19 @@ plt.plot(
     counts_fit,
     color="red",
     linewidth=2,
-    label="Exponential fit"
+    label="Exponential + background fit"
 )
 
 plt.xlabel("Time (us)")
 plt.ylabel("Counts")
-plt.title("Exponential Decay Fit")
+plt.title("Exponential Decay + Background Fit")
 plt.grid(alpha=0.3)
 plt.legend()
 
 fit_text = (
     rf"$N_0 = {N0:.1f} \pm {sigma_N0_total:.1f}$" "\n"
-    rf"$\tau = {tau:.4f} \pm {sigma_tau_total:.4f}$ us"
+    rf"$\tau = {tau:.4f} \pm {sigma_tau_total:.4f}$ us" "\n"
+    rf"$B = {B:.2f} \pm {sigma_B_total:.2f}$ counts"
 )
 
 plt.text(
