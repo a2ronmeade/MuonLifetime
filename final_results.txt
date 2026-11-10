@@ -1,0 +1,14 @@
+N0  = 180.748 +/- 5.008 counts
+tau = 2.24659 +/- 0.05426 us
+B = 3.433 +/- 0.228 counts
+
+--- Uncertainty breakdown ---
+N0 fit uncertainty:          5.00779
+Tau fit uncertainty:         0.05388 us
+Tau discretization error:    0.00639 us
+Tau calibration uncertainty: 0.00016 us
+Time bin uncertainty:        0.02825 us
+
+--- Final Numbers ---
+tau:                2.24659
+sigma tau:          0.05426 us
