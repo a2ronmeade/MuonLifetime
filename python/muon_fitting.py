@@ -48,7 +48,7 @@ popt, pcov = curve_fit(
 )
 N0, tau, B = popt
 
-sigma_N0_fit, sigma_tau_fit, sigma_B_fit = np.sqrt(np.diag(pcov))                                # statistical fit uncertainty
+sigma_N0_fit, sigma_tau_fit, sigma_B_fit = np.sqrt(np.diag(pcov))                   # statistical fit uncertainty
 sigma_tau_bin = tau * (sigma_V / np.mean(np.abs(voltage)))                          # binning uncertainty
 sigma_tau_cal = tau * sigma_C / C                                                   # scale uncertainty proportionally
 sigma_tau_total = np.sqrt(sigma_tau_fit**2 + sigma_tau_bin**2 + sigma_tau_cal**2)   # add in quad 
@@ -71,6 +71,10 @@ print(f"Time bin uncertainty:        {sigma_time_bin:.5f} us")
 time_fit = np.linspace(np.min(time), np.max(time), 1000)
 counts_fit = exponential_decay(time_fit, N0, tau, B)
 
+print("\n--- Final Numbers ---")
+print(f"tau:                {tau:.5f}")
+print(f"sigma tau:          {sigma_tau_total:.5f} us")
+
 # Plot
 plt.figure(figsize=(12, 6))
 
@@ -92,7 +96,7 @@ plt.errorbar(
     color="black",
     capsize=2,
     linewidth=0.8,
-    label="Poisson uncertainty"
+    label="Poisson uncertainty (using Gehrel's Approximation for low N)"
 )
 
 plt.plot(
@@ -103,15 +107,15 @@ plt.plot(
     label="Exponential + background fit"
 )
 
-plt.xlabel("Time (us)")
-plt.ylabel("Counts")
-plt.title("Exponential Decay + Background Fit")
+plt.xlabel("Time (microseconds)", size = 20)
+plt.ylabel("Counts", size = 20)
+plt.title("Exponential Decay with Background for Muon Decay", size = 20)
 plt.grid(alpha=0.3)
-plt.legend()
+plt.legend(fontsize=14)
 
 fit_text = (
     rf"$N_0 = {N0:.1f} \pm {sigma_N0_total:.1f}$" "\n"
-    rf"$\tau = {tau:.4f} \pm {sigma_tau_total:.4f}$ us" "\n"
+    rf"$\tau = {tau:.4f} \pm {sigma_tau_total:.4f}$ μs" "\n"
     rf"$B = {B:.2f} \pm {sigma_B_total:.2f}$ counts"
 )
 
@@ -121,6 +125,7 @@ plt.text(
     transform=plt.gca().transAxes,
     ha="right",
     va="top",
+    fontsize=16,
     bbox=dict(facecolor="white", alpha=0.85)
 )
 
