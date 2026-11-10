@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = np.loadtxt("time_calibration")
+data = np.loadtxt("../data/time_calibration")
 voltage = data[:, 0]
 counts = data[:, 1]
 
-T = 0.32  # period in microseconds (we need to check this)
+T = 1.28  # period in microseconds (we need to check this)
 T_uncertainty = T * 0.00005  # given instrument uncertainty?
 bin_width = 0.05
 

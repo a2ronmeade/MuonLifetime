@@ -3,17 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-filename = "muon_run_1"
+filename = "../data/full_run"
 
 # voltage * C = time
-C = 0.978767            # calibation constant for if our period is actually 0.64 microseconds (needs to be checked)
-#C = 0.489384           # us/V
-sigma_C = 0.000035      # us/V
+C = 1.957534           # calibation constant for period of 1.28 microseconds, us/V
+sigma_C = 0.000141      # uncertainty, us/V
 
 bin_width = 0.05        # voltage bin width (V)
 
 data = np.loadtxt(filename)
-data = data[2:] # ignore first few columns
+data = data[3:] # ignore first few columns
 voltage = data[:, 0]
 counts = data[:, 1]
 
@@ -21,7 +20,8 @@ counts = data[:, 1]
 # Convert voltage to time
 time = C * voltage
 
-sigma_counts = np.sqrt(np.maximum(counts, 1)) # Poisson uncertainty in each bin
+sigma_counts = np.maximum(np.sqrt(counts), 1.84) # Gehrels approximation thing for small N
+
 sigma_V = bin_width / np.sqrt(12)
 sigma_time_bin = C * sigma_V
 

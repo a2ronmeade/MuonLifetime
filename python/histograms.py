@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
 os.makedirs("delay histograms", exist_ok=True)
-df = pd.read_csv("delays.csv")
+df = pd.read_csv("../data/delays.csv")
 
 def gaussian(x, A, mu, sigma):
     return A * np.exp(-0.5 * ((x - mu) / sigma)**2)
