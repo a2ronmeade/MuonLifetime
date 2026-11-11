@@ -48,6 +48,19 @@ popt, pcov = curve_fit(
 )
 N0, tau, B = popt
 
+# Calculate residuals and chi-squared
+counts_model = exponential_decay(time, N0, tau, B)
+residuals = counts - counts_model
+
+chi_squared = np.sum((residuals / sigma_counts)**2)
+dof = len(counts) - len(popt)
+reduced_chi_squared = chi_squared / dof
+normalized_residuals = residuals / sigma_counts
+
+print(f"\nChi-squared:         {chi_squared:.3f}")
+print(f"Degrees of freedom:  {dof}")
+print(f"Reduced chi-squared: {reduced_chi_squared:.3f}")
+
 sigma_N0_fit, sigma_tau_fit, sigma_B_fit = np.sqrt(np.diag(pcov))                   # statistical fit uncertainty
 sigma_tau_bin = tau * (sigma_V / np.mean(np.abs(voltage)))                          # binning uncertainty
 sigma_tau_cal = tau * sigma_C / C                                                   # scale uncertainty proportionally
@@ -71,14 +84,16 @@ print(f"Time bin uncertainty:        {sigma_time_bin:.5f} us")
 time_fit = np.linspace(np.min(time), np.max(time), 1000)
 counts_fit = exponential_decay(time_fit, N0, tau, B)
 
-print("\n--- Final Numbers ---")
-print(f"tau:                {tau:.5f}")
-print(f"sigma tau:          {sigma_tau_total:.5f} us")
-
 # Plot
-plt.figure(figsize=(12, 6))
+fig, (ax1, ax2) = plt.subplots(
+    2, 1,
+    figsize=(12, 8),
+    sharex=True,
+    gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.05}
+)
 
-plt.bar(
+# Main plot
+ax1.bar(
     time,
     counts,
     width=C * bin_width,
@@ -88,7 +103,7 @@ plt.bar(
     label="Measured data"
 )
 
-plt.errorbar(
+ax1.errorbar(
     time,
     counts,
     yerr=sigma_counts,
@@ -96,10 +111,10 @@ plt.errorbar(
     color="black",
     capsize=2,
     linewidth=0.8,
-    label="Poisson uncertainty (using Gehrel's Approximation for low N)"
+    label="Poisson uncertainty (Gehrel's approximation)"
 )
 
-plt.plot(
+ax1.plot(
     time_fit,
     counts_fit,
     color="red",
@@ -107,27 +122,45 @@ plt.plot(
     label="Exponential + background fit"
 )
 
-plt.xlabel("Time (microseconds)", size = 20)
-plt.ylabel("Counts", size = 20)
-plt.title("Exponential Decay with Background for Muon Decay", size = 20)
-plt.grid(alpha=0.3)
-plt.legend(fontsize=14)
+ax1.set_ylabel("Counts", size=20)
+ax1.set_title("Exponential Decay with Background for Muon Decay", size=20)
+ax1.grid(alpha=0.3)
+ax1.legend(fontsize=12)
 
+# Fit information
 fit_text = (
     rf"$N_0 = {N0:.1f} \pm {sigma_N0_total:.1f}$" "\n"
     rf"$\tau = {tau:.4f} \pm {sigma_tau_total:.4f}$ μs" "\n"
-    rf"$B = {B:.2f} \pm {sigma_B_total:.2f}$ counts"
+    rf"$B = {B:.2f} \pm {sigma_B_total:.2f}$ counts" "\n"
+    rf"$\chi^2_\mathrm{{red}} = {reduced_chi_squared:.3f}$"
 )
 
-plt.text(
+ax1.text(
     0.97, 0.95,
     fit_text,
-    transform=plt.gca().transAxes,
+    transform=ax1.transAxes,
     ha="right",
     va="top",
-    fontsize=16,
+    fontsize=14,
     bbox=dict(facecolor="white", alpha=0.85)
 )
+
+# Residuals plot
+ax2.errorbar(
+    time,
+    normalized_residuals,
+    yerr=sigma_counts,
+    fmt="o",
+    markersize=3,
+    color="black",
+    capsize=2,
+    linewidth=0.8
+)
+
+ax2.axhline(0, color="red", linewidth=1.5)
+ax2.set_xlabel("Time (microseconds)", size=20)
+ax2.set_ylabel("Normalized Residuals", size=16)
+ax2.grid(alpha=0.3)
 
 plt.tight_layout()
 plt.savefig("exponential_decay_fit.png", dpi=300)
