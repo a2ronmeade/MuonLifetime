@@ -123,7 +123,7 @@ ax1.plot(
 )
 
 ax1.set_ylabel("Counts", size=20)
-ax1.set_title("Exponential Decay with Background for Muon Decay", size=20)
+ax1.set_title("Muon Decay: Fitting Exponential Decay + Background", size=20)
 ax1.grid(alpha=0.3)
 ax1.legend(fontsize=12)
 
