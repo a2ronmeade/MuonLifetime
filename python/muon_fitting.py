@@ -149,7 +149,7 @@ ax1.text(
 ax2.errorbar(
     time,
     normalized_residuals,
-    yerr=sigma_counts,
+    yerr=np.ones_like(counts),
     fmt="o",
     markersize=3,
     color="black",
